@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, Copy, RefreshCcw, DollarSign, Bitcoin } from 'lucide-react';
+import { Lock, Copy, RefreshCcw } from 'lucide-react';
 
 interface CalculatorValues {
   riskUsd: string;
@@ -22,13 +22,11 @@ const initialValues: CalculatorValues = {
 };
 
 function App() {
-  const [calculationType, setCalculationType] = useState<'dollar' | 'bitcoin'>('dollar');
   const [values, setValues] = useState<CalculatorValues>(initialValues);
   const [lockedFields, setLockedFields] = useState<Set<string>>(new Set());
   const [leverage, setLeverage] = useState<number>(0);
-  const [liquidationPrice, setLiquidationPrice] = useState<number | null>(null); // Add liquidation price state
-  const [isLiquidationPriceGood, setIsLiquidationPriceGood] = useState<boolean | null>(null); // Add liquidation price validity state
-
+  const [liquidationPrice, setLiquidationPrice] = useState<number | null>(null);
+  const [isLiquidationPriceGood, setIsLiquidationPriceGood] = useState<boolean | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -65,36 +63,12 @@ function App() {
     setIsLiquidationPriceGood(null);
   };
 
-  const keepRisk = () => {
-    setValues(prev => ({
-      ...initialValues,
-      riskUsd: prev.riskUsd,
-    }));
-    setLockedFields(new Set());
-    setLeverage(0);
-    setLiquidationPrice(null);
-    setIsLiquidationPriceGood(null);
-  };
-
-  const lockFee = () => {
-    setValues(prev => ({
-      ...initialValues,
-      fee: prev.fee,
-    }));
-    setLockedFields(new Set(['fee']));
-    setLeverage(0);
-    setLiquidationPrice(null);
-    setIsLiquidationPriceGood(null);
-  };
-
   const calculateLeverage = (margin: number, positionSizeUsd: number) => {
-    if (margin === 0) {
-      return 0;
-    }
+    if (margin === 0) return 0;
     return positionSizeUsd / margin;
   };
 
-    const calculateMaintenanceMargin = (positionValue: number) => {
+  const calculateMaintenanceMargin = (positionValue: number) => {
     const tiers = [
       { riskLimit: 2000000, leverage: 100, mmr: 0.005, deduction: 0 },
       { riskLimit: 2600000, leverage: 90, mmr: 0.0056, deduction: 1200 },
@@ -111,16 +85,10 @@ function App() {
         tier = tiers[i];
         break;
       }
-      if (i === tiers.length -1) {
-          tier = tiers[i]
-      }
+      if (i === tiers.length - 1) tier = tiers[i];
     }
 
-
-    return {
-      mmr: tier.mmr,
-      deduction: tier.deduction,
-    };
+    return { mmr: tier.mmr, deduction: tier.deduction };
   };
 
   const calculateLiquidationPrice = (
@@ -137,9 +105,9 @@ function App() {
     }
   };
 
-    const isLongPosition = (entryPrice: number, stopLoss: number) => {
-        return stopLoss < entryPrice;
-    };
+  const isLongPosition = (entryPrice: number, stopLoss: number) => {
+    return stopLoss < entryPrice;
+  };
 
   const calculate = () => {
     const riskUsd = parseFloat(values.riskUsd);
@@ -148,13 +116,8 @@ function App() {
     const fee = parseFloat(values.fee) / 100;
     const margin = parseFloat(values.margin);
 
-    if (isNaN(riskUsd) || isNaN(entryPrice) || isNaN(stopLoss) || isNaN(fee)) {
-      return;
-    }
-
-    if (entryPrice === stopLoss) {
-      return;
-    }
+    if (isNaN(riskUsd) || isNaN(entryPrice) || isNaN(stopLoss) || isNaN(fee)) return;
+    if (entryPrice === stopLoss) return;
 
     const riskPerUnit = Math.abs(entryPrice - stopLoss);
     const positionSizeCrypto = riskUsd / riskPerUnit;
@@ -176,10 +139,7 @@ function App() {
   useEffect(() => {
     const requiredFields = ['riskUsd', 'entryPrice', 'stopLoss', 'fee'];
     const allFieldsFilled = requiredFields.every(field => values[field as keyof CalculatorValues] !== '');
-
-    if (allFieldsFilled) {
-      calculate();
-    }
+    if (allFieldsFilled) calculate();
   }, [values.riskUsd, values.entryPrice, values.stopLoss, values.fee, values.margin]);
 
   useEffect(() => {
@@ -210,7 +170,7 @@ function App() {
     }
   };
 
-    useEffect(() => {
+  useEffect(() => {
     const entryPrice = parseFloat(values.entryPrice);
     const stopLoss = parseFloat(values.stopLoss);
     const positionSizeUsd = parseFloat(values.positionSizeUsd);
@@ -231,7 +191,6 @@ function App() {
 
       setLiquidationPrice(liquidationPrice);
 
-      // Check if liquidation price is "good"
       if (longPosition) {
         setIsLiquidationPriceGood(liquidationPrice < stopLoss);
       } else {
@@ -244,22 +203,16 @@ function App() {
   }, [values.entryPrice, values.stopLoss, values.positionSizeUsd, values.margin, leverage, values.positionSizeCrypto]);
 
   return (
-    <div className="min-h-screen bg-gray-900 opacity-[.85] text-gray-100 p-6">
+    <div className="min-h-screen bg-gray-900 opacity-[.85] text-gray-100 p-6 relative">
       <div className="max-w-3xl mx-auto space-y-8">
-        {/* Header */}
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
             Crypto Position Size Calculator
           </h1>
-          <p className="text-white-400">
-          ✗
-          </p>
+          <p className="text-white-400">✗</p>
         </div>
 
-
-        {/* Calculator Form */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left Column */}
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-white">Risk USD</label>
@@ -277,7 +230,7 @@ function App() {
                 <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                 <Lock
                   className={`absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer transition-colors duration-300 ${
-                    lockedFields.has('riskUsd') ? 'text-white' : 'text-gray-500 hover:text-blue-500'
+                    lockedFields.has('riskUsd') ? 'text-blue-500' : 'text-gray-500 hover:text-blue-500'
                   }`}
                   size={18}
                   onClick={() => toggleLock('riskUsd')}
@@ -305,7 +258,6 @@ function App() {
             </div>
           </div>
 
-          {/* Right Column */}
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-white">Stop Loss</label>
@@ -342,7 +294,7 @@ function App() {
                 <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                 <Lock
                   className={`absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer transition-colors duration-300 ${
-                    lockedFields.has('fee') ? 'text-blue-500' : 'text-white hover:text-blue-500'
+                    lockedFields.has('fee') ? 'text-blue-500' : 'text-gray-500 hover:text-blue-500'
                   }`}
                   size={18}
                   onClick={() => toggleLock('fee')}
@@ -352,7 +304,6 @@ function App() {
           </div>
         </div>
 
-        {/* Margin and Leverage Section */}
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
@@ -374,30 +325,27 @@ function App() {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-white">Leverage</label>
+              <label className="block text-sm font-medium text-white">Leverage: {leverage.toFixed(1)}x</label>
               <div className="relative group">
                 <input
                   type="range"
-                  min="0"
-                  max={leverage ? Math.ceil(leverage * 2) : '100'}
-                  step={leverage > 100 ? '10' : leverage > 50 ? '5' : leverage > 10 ? '1' : '0.1'}
+                  min="1"
+                  max="100"
+                  step="0.1"
                   value={leverage.toFixed(1)}
                   onChange={handleLeverageChange}
-                  className="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                  className="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-not-allowed"
+                  disabled
                 />
                 <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20  group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-sm">
-                  {leverage.toFixed(1)}x
-                </span>
               </div>
-               {/* Liquidation Price Display */}
               {liquidationPrice !== null && (
                 <div className="text-center text-sm mt-2">
                   Liquidation Price: {liquidationPrice.toFixed(2)} (
                   {isLiquidationPriceGood ? (
-                    <span className="text-green-500">Good</span>
+                    <span className="text-green-500">✅</span>
                   ) : (
-                    <span className="text-red-500">Not Good</span>
+                    <span className="text-red-500">⚠️</span>
                   )}
                   )
                 </div>
@@ -406,7 +354,6 @@ function App() {
           </div>
         </div>
 
-        {/* Result Section */}
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
@@ -446,8 +393,7 @@ function App() {
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap justify-center gap-4">
+        <div className="flex justify-center">
           <button
             onClick={resetAll}
             className="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors duration-300"
@@ -455,19 +401,16 @@ function App() {
             <RefreshCcw className="inline-block mr-2" size={18} />
             Reset All
           </button>
-          <button
-            onClick={keepRisk}
-            className="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors duration-300"
-          >
-            Keep Risk
-          </button>
-          <button
-            onClick={lockFee}
-            className="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors duration-300"
-          >
-            Lock Fee
-          </button>
         </div>
+      </div>
+
+      <div className="absolute bottom-4 right-4 flex items-center text-sm text-gray-300">
+        <span className="mr-2">Optimized for</span>
+        <img
+          src="https://i.imgur.com/sVfhu73.png"
+          alt="Bybit Logo"
+          className="h-5"
+        />
       </div>
     </div>
   );

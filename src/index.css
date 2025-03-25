@@ -18,4 +18,100 @@
   input[type="number"] {
     -moz-appearance: textfield;
   }
+
+    /* Override disabled styles for the range input */
+  input[type="range"]:disabled {
+    opacity: 1 !important; /* Ensure it's not faded */
+    cursor: default !important; /* Always show default cursor */
+    pointer-events: none; /* Prevent interaction */
+  }
+
+    /* --- Slider-specific styles for cross-browser compatibility --- */
+
+  /* WebKit (Chrome, Safari) */
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Remove default appearance */
+    appearance: none;
+    width: 15px; /* Customize thumb size */
+    height: 15px;
+    background: #4c51bf; /* Customize thumb color */
+    border-radius: 50%; /* Make it round */
+    cursor: default !important; /* Default cursor on thumb */
+  }
+
+  input[type="range"]:disabled::-webkit-slider-thumb{
+    cursor: default !important;
+  }
+
+  input[type="range"]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 8px;
+    background: #2d3748; /* Customize track color */
+    border-radius: 5px;
+    cursor: default !important;
+  }
+
+    input[type="range"]:disabled::-webkit-slider-runnable-track{
+    cursor: default !important;
+  }
+
+  /* Firefox */
+  input[type="range"]::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    background: #4c51bf;
+    border-radius: 50%;
+    cursor: default !important; /* Default cursor on thumb */
+      border: none;
+  }
+
+    input[type="range"]:disabled::-moz-range-thumb{
+    cursor: default !important;
+  }
+
+  input[type="range"]::-moz-range-track {
+    width: 100%;
+    height: 8px;
+    background: #2d3748;
+    border-radius: 5px;
+    cursor: default !important;
+  }
+
+    input[type="range"]:disabled::-moz-range-track{
+    cursor: default !important;
+  }
+
+  /* For older IE/Edge (not needed for modern Edge, which is Chromium-based) */
+  input[type="range"]::-ms-thumb {
+    width: 15px;
+    height: 15px;
+    background: #4c51bf;
+    border-radius: 50%;
+    cursor: default !important;
+      border: none;
+  }
+
+  input[type="range"]::-ms-track {
+    width: 100%;
+    height: 8px;
+    background: #2d3748;
+    border-radius: 5px;
+    cursor: default !important;
+    color: transparent; /* Hide the default track color */
+    border-color: transparent;
+  }
+
+    input[type="range"]:disabled::-ms-thumb{
+        cursor: default !important;
+    }
+
+  input[type="range"]::-ms-fill-lower {
+    background: #2d3748; /* Consistent track color */
+    border-radius: 5px;
+  }
+
+  input[type="range"]::-ms-fill-upper {
+    background: #2d3748; /* Consistent track color */
+    border-radius: 5px;
+  }
 }
