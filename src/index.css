@@ -4,114 +4,132 @@
 
 @layer base {
   body {
-    @apply bg-gray-900;
-    background-image: url("https://i.imgur.com/SHDl7R2.png");
+    @apply bg-gray-900/20;
+    background-image: url("https://i.imgur.com/6APGlU4.png");
     background-size: cover;
+    background-attachment: fixed; /* Keep background fixed */
   }
 
+  /* Remove default spinners from number inputs */
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
-
   input[type="number"] {
-    -moz-appearance: textfield;
+    -moz-appearance: textfield; /* Firefox */
   }
 
-    /* Override disabled styles for the range input */
-  input[type="range"]:disabled {
-    opacity: 1 !important; /* Ensure it's not faded */
-    cursor: default !important; /* Always show default cursor */
-    pointer-events: none; /* Prevent interaction */
+  /* --- Custom Range Slider Styles --- */
+  .custom-slider {
+    --track-height: 4px;
+    --thumb-size: 16px;
+    --thumb-color: #AD1A7A; /* Magenta/Purple */
+    --track-color-inactive: #4A5568; /* gray-600 */
+    --track-color-active: #AD1A7A; /* Magenta/Purple */
+    --thumb-glow-color: rgba(173, 26, 122, 0.3); /* Lighter magenta with transparency */
+
+    height: var(--thumb-size); /* Make slider container tall enough for thumb */
+    cursor: default !important; /* Always default cursor as it's disabled */
+    background-color: transparent; /* Remove default background if any */
   }
 
-    /* --- Slider-specific styles for cross-browser compatibility --- */
-
-  /* WebKit (Chrome, Safari) */
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none; /* Remove default appearance */
-    appearance: none;
-    width: 15px; /* Customize thumb size */
-    height: 15px;
-    background: #4c51bf; /* Customize thumb color */
-    border-radius: 50%; /* Make it round */
-    cursor: default !important; /* Default cursor on thumb */
-  }
-
-  input[type="range"]:disabled::-webkit-slider-thumb{
-    cursor: default !important;
-  }
-
-  input[type="range"]::-webkit-slider-runnable-track {
+  /* WebKit (Chrome, Safari, Edge Chromium) */
+  .custom-slider::-webkit-slider-runnable-track {
     width: 100%;
-    height: 8px;
-    background: #2d3748; /* Customize track color */
-    border-radius: 5px;
+    height: var(--track-height);
+    background: linear-gradient(to right,
+      var(--track-color-active) var(--value-percent, 0%),
+      var(--track-color-inactive) var(--value-percent, 0%)
+    );
+    border-radius: calc(var(--track-height) / 2);
     cursor: default !important;
   }
 
-    input[type="range"]:disabled::-webkit-slider-runnable-track{
+  .custom-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: var(--thumb-size);
+    height: var(--thumb-size);
+    background: var(--thumb-color);
+    border-radius: 50%;
     cursor: default !important;
+    margin-top: calc((var(--track-height) - var(--thumb-size)) / 2); /* Center thumb vertically */
+    box-shadow: 0 0 5px 3px var(--thumb-glow-color); /* Add glow */
+    position: relative; /* Needed for potential z-index if overlapping occurs */
+    z-index: 1;
   }
 
   /* Firefox */
-  input[type="range"]::-moz-range-thumb {
-    width: 15px;
-    height: 15px;
-    background: #4c51bf;
-    border-radius: 50%;
-    cursor: default !important; /* Default cursor on thumb */
-      border: none;
-  }
-
-    input[type="range"]:disabled::-moz-range-thumb{
-    cursor: default !important;
-  }
-
-  input[type="range"]::-moz-range-track {
+  .custom-slider::-moz-range-track {
     width: 100%;
-    height: 8px;
-    background: #2d3748;
-    border-radius: 5px;
+    height: var(--track-height);
+    background: var(--track-color-inactive); /* Firefox doesn't support gradient track easily */
+    /* A workaround is needed for filled track color, often involving pseudo-elements or JS */
+    border-radius: calc(var(--track-height) / 2);
     cursor: default !important;
   }
-
-    input[type="range"]:disabled::-moz-range-track{
-    cursor: default !important;
+   /* Firefox - Active part (requires JS to set a variable or use complex selectors) */
+  /* For simplicity, we'll just have the thumb indicate value */
+  .custom-slider::-moz-range-progress { /* This styles the 'filled' part */
+    background-color: var(--track-color-active);
+    height: var(--track-height);
+    border-radius: calc(var(--track-height) / 2);
   }
 
-  /* For older IE/Edge (not needed for modern Edge, which is Chromium-based) */
-  input[type="range"]::-ms-thumb {
-    width: 15px;
-    height: 15px;
-    background: #4c51bf;
+
+  .custom-slider::-moz-range-thumb {
+    width: var(--thumb-size);
+    height: var(--thumb-size);
+    background: var(--thumb-color);
     border-radius: 50%;
+    border: none; /* Remove default border */
     cursor: default !important;
-      border: none;
+    box-shadow: 0 0 5px 3px var(--thumb-glow-color); /* Add glow */
   }
 
-  input[type="range"]::-ms-track {
+  /* Microsoft Edge (Old - MSHTML) & IE */
+  /* Note: Modern Edge uses WebKit styles */
+  .custom-slider::-ms-track {
     width: 100%;
-    height: 8px;
-    background: #2d3748;
-    border-radius: 5px;
-    cursor: default !important;
-    color: transparent; /* Hide the default track color */
+    height: var(--track-height);
+    background: transparent; /* Hide default track */
     border-color: transparent;
+    color: transparent;
+    cursor: default !important;
   }
 
-    input[type="range"]:disabled::-ms-thumb{
-        cursor: default !important;
-    }
-
-  input[type="range"]::-ms-fill-lower {
-    background: #2d3748; /* Consistent track color */
-    border-radius: 5px;
+  .custom-slider::-ms-fill-lower { /* Active part */
+    background: var(--track-color-active);
+    border-radius: calc(var(--track-height) / 2);
   }
 
-  input[type="range"]::-ms-fill-upper {
-    background: #2d3748; /* Consistent track color */
-    border-radius: 5px;
+  .custom-slider::-ms-fill-upper { /* Inactive part */
+    background: var(--track-color-inactive);
+    border-radius: calc(var(--track-height) / 2);
   }
+
+  .custom-slider::-ms-thumb {
+    width: var(--thumb-size);
+    height: var(--thumb-size);
+    background: var(--thumb-color);
+    border-radius: 50%;
+    border: none;
+    cursor: default !important;
+    margin-top: 0; /* Centering is usually okay by default */
+    box-shadow: 0 0 5px 3px var(--thumb-glow-color); /* Add glow */
+  }
+
+  /* Ensure disabled state doesn't override custom styles negatively */
+  .custom-slider:disabled {
+    opacity: 0.7; /* Slightly fade when disabled, adjust as needed */
+    cursor: default !important;
+  }
+  .custom-slider:disabled::-webkit-slider-thumb { cursor: default !important; }
+  .custom-slider:disabled::-moz-range-thumb { cursor: default !important; }
+  .custom-slider:disabled::-ms-thumb { cursor: default !important; }
+  .custom-slider:disabled::-webkit-slider-runnable-track { cursor: default !important; }
+  .custom-slider:disabled::-moz-range-track { cursor: default !important; }
+  .custom-slider:disabled::-ms-track { cursor: default !important; }
+
 }
